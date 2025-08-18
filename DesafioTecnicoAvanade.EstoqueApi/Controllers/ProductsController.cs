@@ -63,7 +63,7 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
 
             await _services.Updateproduct(productDTO);
 
-            return Ok(productDTO);
+            return NoContent();
 
         }
 
@@ -77,7 +77,7 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
 
             await _services.RemoveProduct(id);
 
-            return Ok(product);
+            return NoContent();
 
         }
 

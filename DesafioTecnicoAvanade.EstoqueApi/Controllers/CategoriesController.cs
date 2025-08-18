@@ -70,8 +70,8 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
 
             await _services.UpdateCategry(categoryDTO);
 
-            return Ok(categoryDTO);
-            
+            return NoContent();
+
         }
 
         [HttpDelete("{id:int}")]
@@ -84,7 +84,7 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
 
             await _services.RemoveCategory(id);
 
-            return Ok(category);
+            return NoContent();
             
         }
 
