@@ -1,4 +1,6 @@
+using DesafioTecnicoAvanade.IdentityServer.Configuration;
 using DesafioTecnicoAvanade.IdentityServer.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +12,25 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+builder.Services.AddIdentity<ApplicationUser,IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+var builderIdentityServer = builder.Services.AddIdentityServer(options =>
+{
+    options.Events.RaiseErrorEvents = true;
+    options.Events.RaiseInformationEvents = true;
+    options.Events.RaiseFailureEvents = true;
+    options.Events.RaiseSuccessEvents = true;
+    options.EmitStaticAudienceClaim = true;
+}).AddInMemoryIdentityResources(
+                       IdentityConfiguration.IdentityResources)
+                       .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
+                       .AddInMemoryClients(IdentityConfiguration.Clients)
+                       .AddAspNetIdentity<ApplicationUser>();
+
+builderIdentityServer.AddDeveloperSigningCredential();
 
 var app = builder.Build();
 
@@ -25,6 +46,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseIdentityServer();
 
 app.UseAuthorization();
 
