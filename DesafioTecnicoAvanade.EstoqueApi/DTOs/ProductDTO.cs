@@ -1,5 +1,6 @@
 ﻿using DesafioTecnicoAvanade.EstoqueApi.Models;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DesafioTecnicoAvanade.EstoqueApi.DTOs;
 
@@ -23,6 +24,8 @@ public record ProductDTO
     [Required(ErrorMessage = "O estoque Não pode estar vazio!")]
     [Range(1,9999)]
     public long Stock { get; set; }
+
+    [JsonIgnore]
     public Category? Category { get; set; }
     public int CategoryId { get; set; }
 }

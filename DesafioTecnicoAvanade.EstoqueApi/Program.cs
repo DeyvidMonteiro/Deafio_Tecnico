@@ -1,11 +1,19 @@
+using AutoMapper;
 using DesafioTecnicoAvanade.EstoqueApi.DataAccess.Context;
+using DesafioTecnicoAvanade.EstoqueApi.DataAccess.InterfacesRepositories;
+using DesafioTecnicoAvanade.EstoqueApi.DataAccess.Repositories;
+using DesafioTecnicoAvanade.EstoqueApi.DataAccess.UnitOfWork;
+using DesafioTecnicoAvanade.EstoqueApi.Services.Category;
+using DesafioTecnicoAvanade.EstoqueApi.Services.Product;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(opt => opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+    
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -16,6 +24,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 builder.Services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
+
+builder.Services.AddScoped<ICategoryWriteOlyRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryRideOnlyRepository, CategoryRepository>();
+builder.Services.AddScoped<IProductReadOnlyRepository, ProductRepository>();
+builder.Services.AddScoped<IProductWriteOnlyRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryServices, CategoryServices>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 var app = builder.Build();
 
