@@ -1,27 +1,20 @@
-using AutoMapper;
-using DesafioTecnicoAvanade.EstoqueApi.DataAccess.Context;
-using DesafioTecnicoAvanade.EstoqueApi.DataAccess.InterfacesRepositories;
-using DesafioTecnicoAvanade.EstoqueApi.DataAccess.Repositories;
-using DesafioTecnicoAvanade.EstoqueApi.DataAccess.UnitOfWork;
-using DesafioTecnicoAvanade.EstoqueApi.Services.Category;
-using DesafioTecnicoAvanade.EstoqueApi.Services.Product;
+using DesafioTecnicoAvanade.VendasApi.DataAccess.Context;
+using DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts;
+using DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers().AddJsonOptions(opt => opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-
+builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "DesafioTecnicoAvanade.EstoqueApi", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "DesafioTecnicoAvanade.VendasApi", Version = "v1" });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = @"'Bearer' [space] seu token",
@@ -55,6 +48,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies());
 
+builder.Services.AddScoped<ICartReadOlyRepository, CartRepository>();
+builder.Services.AddScoped<ICartWriteOnlyRepository, CartRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
@@ -62,14 +60,6 @@ builder.Services.AddCors(options =>
                           .AllowAnyMethod()
                           .AllowAnyHeader());
 });
-
-builder.Services.AddScoped<ICategoryWriteOlyRepository, CategoryRepository>();
-builder.Services.AddScoped<ICategoryRideOnlyRepository, CategoryRepository>();
-builder.Services.AddScoped<IProductReadOnlyRepository, ProductRepository>();
-builder.Services.AddScoped<IProductWriteOnlyRepository, ProductRepository>();
-builder.Services.AddScoped<ICategoryServices, CategoryServices>();
-builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
 //Terminar de implementar, lembrar de configurar o appsetings.json
@@ -84,14 +74,13 @@ builder.Services.AddAuthentication("Bearer")
        });
 
 builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ApiScope", policy =>
     {
-        options.AddPolicy("ApiScope", policy =>
-        {
-            policy.RequireAuthenticatedUser();
-            policy.RequireClaim("scope", "read"); // substitir pelo escopo que a API vai exigir
-        });
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("scope", "read"); // substitir pelo escopo que a API vai exigir
     });
-
+});
 
 var app = builder.Build();
 
