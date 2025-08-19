@@ -1,12 +1,16 @@
 ﻿using DesafioTecnicoAvanade.EstoqueApi.DTOs;
 using DesafioTecnicoAvanade.EstoqueApi.Services.Product;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using DesafioTecnicoAvanade.EstoqueApi.Roles;
 
 namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _services;
@@ -15,9 +19,6 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
         {
             _services = service;
         }
-
-
-
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> Get()
@@ -30,7 +31,6 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
             return Ok(products);
 
         }
-
 
         [HttpGet("{id:int}", Name = "GetProducts")]
         public async Task<ActionResult<CategoryDTO>> Get(int id)
@@ -45,6 +45,7 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult> Post([FromBody] ProductDTO productDTO)
         {
             if (productDTO is null)
@@ -56,6 +57,7 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult> Put(int id, [FromBody] ProductDTO productDTO)
         {
             if (id != productDTO.Id || productDTO is null)
@@ -68,6 +70,7 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult> Delete(int id)
         {
             var product = await _services.GetProductById(id);
@@ -80,7 +83,6 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
             return NoContent();
 
         }
-
 
     }
 }

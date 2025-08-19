@@ -1,5 +1,8 @@
 using DesafioTecnicoAvanade.IdentityServer.Configuration;
 using DesafioTecnicoAvanade.IdentityServer.Data;
+using DesafioTecnicoAvanade.IdentityServer.Services;
+using Duende.IdentityServer.AspNetIdentity;
+using Duende.IdentityServer.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +34,8 @@ var builderIdentityServer = builder.Services.AddIdentityServer(options =>
                        .AddAspNetIdentity<ApplicationUser>();
 
 builderIdentityServer.AddDeveloperSigningCredential();
+
+builder.Services.AddScoped<IProfileService,ProfileAppService>();
 
 var app = builder.Build();
 

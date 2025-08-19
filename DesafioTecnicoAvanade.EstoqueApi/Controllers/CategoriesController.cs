@@ -1,11 +1,15 @@
 ﻿using DesafioTecnicoAvanade.EstoqueApi.DTOs;
+using DesafioTecnicoAvanade.EstoqueApi.Roles;
 using DesafioTecnicoAvanade.EstoqueApi.Services.Category;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryServices _services;
@@ -52,6 +56,7 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult> Post([FromBody] CategoryDTO categoryDTO)
         {
             if (categoryDTO is null)
@@ -63,6 +68,7 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult> Put(int id, [FromBody] CategoryDTO categoryDTO)
         {
             if (id != categoryDTO.Id || categoryDTO is null)
@@ -75,6 +81,7 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Controllers
         }
 
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = Role.Admin)]
         public async Task<ActionResult> Delete(int id)
         {
          var category = await _services.GetCategoryById(id);
