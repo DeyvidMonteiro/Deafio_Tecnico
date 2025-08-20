@@ -4,6 +4,7 @@ using DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts;
 using DesafioTecnicoAvanade.VendasApi.DTOs;
 using DesafioTecnicoAvanade.VendasApi.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.PortableExecutable;
 
 namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories
 {
@@ -22,14 +23,19 @@ namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories
 
         public async Task<CartDTO> GetCartByUserIdAsync(string userId)
         {
+
             Cart cart = new()
             {
-                CartHeader = await _appDbContext.CartHeaders.FirstOrDefaultAsync(c => c.UserId == userId)
+                CartHeader = await _appDbContext.CartHeaders.FirstOrDefaultAsync(c => c.UserId == userId),
             };
+
+            if (cart.CartHeader == null)
+                return null;
 
             cart.CartItems = _appDbContext.CartItems.Where(c => c.CartHeaderId == cart.CartHeader.Id).Include(c => c.Product);
 
             return _mapper.Map<CartDTO>(cart);
+
         }
 
         public async Task<bool> DeleteItemCartAsync(int cartItemId)
@@ -42,14 +48,16 @@ namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories
                 int total = _appDbContext.CartItems.Where(c => c.CartHeaderId == cartItem.CartHeaderId).Count();
 
                 _appDbContext.CartItems.Remove(cartItem);
+                await _unitOfWork.Commit();
 
                 if (total == 1)
                 {
                     var cartHeaderRemove = await _appDbContext.CartHeaders.FirstOrDefaultAsync(c => c.Id == cartItem.CartHeaderId);
                     _appDbContext.CartHeaders.Remove(cartHeaderRemove);
+                    await _unitOfWork.Commit();
                 }
 
-                await _unitOfWork.Commit();
+
                 return true;
 
             }
@@ -130,6 +138,7 @@ namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories
         private async Task CreateCartHeaderAndItems(Cart cart)
         {
             _appDbContext.CartHeaders.Add(cart.CartHeader);
+            await _unitOfWork.Commit();
 
             cart.CartItems.FirstOrDefault().CartHeaderId = cart.CartHeader.Id;
             cart.CartItems.FirstOrDefault().Product = null;

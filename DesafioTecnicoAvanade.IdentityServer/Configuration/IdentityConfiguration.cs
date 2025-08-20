@@ -35,6 +35,15 @@ namespace DesafioTecnicoAvanade.IdentityServer.Configuration
                     AllowedGrantTypes = GrantTypes.ClientCredentials, //precisa das credenciais do usuário
                     AllowedScopes = {"read", "write", "profile" }
                 },
+
+                // Cliente para Resource Owner Password
+                new Client
+                {
+                    ClientId = "ro.client",
+                    ClientSecrets = { new Secret("secreta".Sha256()) },
+                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                    AllowedScopes = { "read", "write", "profile", "openid", "email" }
+                }
             };
 
     }
