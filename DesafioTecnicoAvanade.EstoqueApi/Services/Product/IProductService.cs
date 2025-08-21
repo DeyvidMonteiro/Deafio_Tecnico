@@ -9,4 +9,5 @@ public interface IProductService
     Task AddProduct(ProductDTO productDTO);
     Task Updateproduct(ProductDTO productDTO);
     Task RemoveProduct(int id);
+    Task DecrementStock(int productId, long quantity);
 }

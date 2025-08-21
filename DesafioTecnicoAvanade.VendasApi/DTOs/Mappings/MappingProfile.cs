@@ -11,6 +11,8 @@ namespace DesafioTecnicoAvanade.VendasApi.DTOs.Mappings
             CreateMap<CartHeaderDTO, CartHeader>().ReverseMap();
             CreateMap<CartItemDTO, CartItem>().ReverseMap();
             CreateMap<ProductDTO, Product>().ReverseMap();
+            CreateMap<OrderDTO, Order>().ReverseMap();
+            CreateMap<OrderItemDTO, OrderItem>().ReverseMap();
         }
     }
 }

@@ -43,7 +43,24 @@ namespace DesafioTecnicoAvanade.IdentityServer.Configuration
                     ClientSecrets = { new Secret("secreta".Sha256()) },
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                     AllowedScopes = { "read", "write", "profile", "openid", "email" }
+                },
+
+                new Client
+                {
+                    ClientId = "possivelGateway",
+                    ClientSecrets = { new Secret("abracadabra#simsalabim".Sha256())},
+                    AllowedGrantTypes = GrantTypes.Code, //via codigo
+                    RedirectUris = {"https://localhost:7165/signin-oidc"},//login
+                    PostLogoutRedirectUris = {"https://localhost:7165/signout-callback-oidc"},//logout
+                    AllowedScopes = new List<string>
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Email,
+                        "possivelGateway"
+                    }
                 }
+
             };
 
     }

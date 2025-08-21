@@ -43,5 +43,17 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Services.Product
             await _writeRepository.Delete(product.Id);
         }
 
+        public async Task DecrementStock(int productId, long quantity)
+        {
+            var product = await _readRepository.GetById(productId);
+            if (product == null)
+                throw new Exception("Produto não encontrado");
+
+            if (product.Stock < quantity)
+                throw new Exception("Estoque insuficiente");
+
+            product.Stock -= quantity;
+            await _writeRepository.Update(product);
+        }
     }
 }
