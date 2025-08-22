@@ -1,12 +1,16 @@
 ﻿using DesafioTecnicoAvanade.VendasApi.DTOs;
+using DesafioTecnicoAvanade.VendasApi.Models;
 
 namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts
 {
     public interface ICartWriteOnlyRepository
     {
-        Task<CartDTO>UpdateCartAsync(CartDTO cartDTO);
-        Task<bool> CleanCartAsync(string userId);
-        Task<bool> DeleteItemCartAsync(int cartItemId);
-        
+        Task AddCartHeaderAsync(CartHeader cartHeader);
+        Task AddCartItemAsync(CartItem cartItem);
+        Task AddProductAsync(Product product);
+        Task UpdateCartItemAsync(CartItem cartItem);
+        Task DeleteCartItemAsync(CartItem cartItem);
+        Task DeleteCartHeaderAsync(CartHeader cartHeader);
+
     }
 }

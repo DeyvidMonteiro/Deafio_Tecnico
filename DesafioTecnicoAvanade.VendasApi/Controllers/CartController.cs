@@ -1,30 +1,26 @@
-﻿ using DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts;
-using DesafioTecnicoAvanade.VendasApi.DTOs;
+﻿using DesafioTecnicoAvanade.VendasApi.DTOs;
+using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DesafioTecnicoAvanade.VendasApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class CartController : ControllerBase
     {
-        private readonly ICartReadOlyRepository _ReadRepository;
-        private readonly ICartWriteOnlyRepository _WriteRepository;
+        private readonly ICartService _service;
 
-        public CartController(ICartReadOlyRepository cartReadOlyRepository,
-            ICartWriteOnlyRepository cartWriteOnlyRepository)
+        public CartController(ICartService service)
         {
-            _ReadRepository = cartReadOlyRepository;
-            _WriteRepository = cartWriteOnlyRepository;
+            _service = service;
         }
 
-        [HttpGet("getcart/{id}")]
+        [HttpGet("getcart/{userId}")]
         public async Task<ActionResult<CartDTO>> GetByUserId(string userId)
         {
-            var cartDto = await _ReadRepository.GetCartByUserIdAsync(userId);
+            var cartDto = await _service.GetCartByUserIdAsync(userId);
 
             if (cartDto is null)
                 return NotFound();
@@ -36,10 +32,10 @@ namespace DesafioTecnicoAvanade.VendasApi.Controllers
         [HttpPost("addcart")]
         public async Task<ActionResult<CartDTO>> AddCart(CartDTO cartDTO)
         {
-            var cart = await _WriteRepository.UpdateCartAsync(cartDTO);
+            var cart = await _service.UpdateCartAsync(cartDTO);
 
             if (cart is null)
-                return NotFound();
+                return BadRequest("Não foi possível criar o carrinho.");
 
             return Ok(cart);
         }
@@ -47,26 +43,25 @@ namespace DesafioTecnicoAvanade.VendasApi.Controllers
         [HttpPost("updatecart")]
         public async Task<ActionResult<CartDTO>> UpdateCart(CartDTO cartDTO)
         {
-            var cart = await _WriteRepository.UpdateCartAsync(cartDTO);
+            var cart = await _service.UpdateCartAsync(cartDTO);
 
             if (cart is null)
-                return NotFound();
+                return BadRequest();
 
             return Ok(cart);
         }
 
         [HttpDelete("deletecart/{id}")]
-        public async Task<ActionResult<bool>> Deletecart(int id)
+        public async Task<ActionResult<bool>> DeleteCart(int id)
         {
-            var status = await _WriteRepository.DeleteItemCartAsync(id);
+            var status = await _service.DeleteItemCartAsync(id);
 
-            if(!status)
-                return BadRequest();
+            if (!status)
+                return BadRequest("Não foi possível deletar o item do carrinho.");
 
             return Ok(status);
         }
-
-
     }
 
 }
+

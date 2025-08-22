@@ -1,6 +1,8 @@
 using DesafioTecnicoAvanade.VendasApi.DataAccess.Context;
 using DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts;
 using DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories;
+using DesafioTecnicoAvanade.VendasApi.Services;
+using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -51,6 +53,10 @@ builder.Services.AddAutoMapper(cfg => { }, AppDomain.CurrentDomain.GetAssemblies
 builder.Services.AddScoped<ICartReadOlyRepository, CartRepository>();
 builder.Services.AddScoped<ICartWriteOnlyRepository, CartRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IOrderWriteOnlyRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderReadOnlyRepository, OrderRepository>();
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 
 builder.Services.AddCors(options =>
