@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using DesafioTecnicoAvanade.EstoqueApi.DataAccess.InterfacesRepositories;
+using DesafioTecnicoAvanade.EstoqueApi.DataAccess.UnitOfWork;
 using DesafioTecnicoAvanade.EstoqueApi.DTOs;
+using DesafioTecnicoAvanade.EstoqueApi.Filters.Exceptions;
+using Microsoft.EntityFrameworkCore;
 
 namespace DesafioTecnicoAvanade.EstoqueApi.Services.Product
 {
@@ -9,13 +12,18 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Services.Product
         private readonly IProductReadOnlyRepository _readRepository;
         private readonly IProductWriteOnlyRepository _writeRepository;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<ProductService> _logger;
 
         public ProductService(IProductReadOnlyRepository readRepository,
-            IProductWriteOnlyRepository writeRepository, IMapper mapper)
+            IProductWriteOnlyRepository writeRepository, IMapper mapper,
+            IUnitOfWork unitOfWork, ILogger<ProductService> logger)
         {
             _readRepository = readRepository;
             _writeRepository = writeRepository;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
+            _logger = logger;
         }
         public async Task<ProductDTO> GetProductById(int id)
         {
@@ -46,7 +54,33 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Services.Product
 
         public async Task DecrementStock(int productId, long quantity)
         {
-            await _writeRepository.Decrement(productId, quantity);
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                var product = await _readRepository.GetProductForUpdateAsync(productId);
+
+                if (product == null)
+                {
+                    throw new ProductNotFoundException("Produto não encontrado.");
+                }
+
+                if (product.Stock < quantity)
+                {
+                    throw new InsufficientStockException("Estoque insuficiente.");
+                }
+
+                product.Stock -= quantity;
+
+                await _writeRepository.UpdateProductAsync(product);
+
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (Exception)
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
 

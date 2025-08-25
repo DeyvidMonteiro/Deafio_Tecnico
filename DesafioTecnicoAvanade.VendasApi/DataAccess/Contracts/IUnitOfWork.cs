@@ -1,7 +1,11 @@
 ﻿namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
-        public Task Commit();
+        Task Commit();
+        Task BeginTransactionAsync();
+        Task RollbackTransactionAsync();
+        Task CommitTransactionAsync();
+        void Dispose();
     }
 }

@@ -6,6 +6,6 @@ public interface IProductWriteOnlyRepository
 {
     Task<Product> Create(Product product);
     Task<Product> Update(Product product);
-    Task Decrement(int productId, long quantity);
+    Task UpdateProductAsync(Product product);
     Task<Product> Delete(int id);
 }

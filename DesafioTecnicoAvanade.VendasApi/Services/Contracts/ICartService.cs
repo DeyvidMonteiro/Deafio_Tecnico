@@ -7,7 +7,7 @@ namespace DesafioTecnicoAvanade.VendasApi.Services.Contracts
     public interface ICartService
     {
         Task<CartDTO> GetCartByUserId(string userId);
-        Task<CartDTO> AddCart(RequestCartDTO request);
+        Task<CartDTO> AddCart(string userId, RequestCartDTO request);
         Task<bool> CleanCart(string userId);
         Task<bool> DeleteItemCart(int cartItemId);
 

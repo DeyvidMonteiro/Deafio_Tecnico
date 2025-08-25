@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts;
 using DesafioTecnicoAvanade.VendasApi.DTOs;
+using DesafioTecnicoAvanade.VendasApi.Filters.Exceptions;
 using DesafioTecnicoAvanade.VendasApi.Models;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
 using DesafioTecnicoAvanade.VendasApi.Services.External;
@@ -15,10 +16,11 @@ public class OrderService : IOrderService
     private readonly IMapper _mapper;
     private readonly IProductApiService _productApiService;
     private readonly ILogger<OrderService> _logger;
+    private readonly IUnitOfWork _unitOfWork;
 
     public OrderService(IOrderReadOnlyRepository readRepository,
         IOrderWriteOnlyRepository writeRepository, IMapper mapper
-        , ICartService cartService, IProductApiService productService, ILogger<OrderService> logger)
+        , ICartService cartService, IProductApiService productService, ILogger<OrderService> logger, IUnitOfWork unitOfWork)
     {
         _readRepository = readRepository;
         _writeRepository = writeRepository;
@@ -26,6 +28,7 @@ public class OrderService : IOrderService
         _cartService = cartService;
         _productApiService = productService;
         _logger = logger;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<OrderDTO> GetOrderById(int orderId)
@@ -38,64 +41,64 @@ public class OrderService : IOrderService
 
     public async Task<OrderDTO> FinalizeOrder(string userId)
     {
-        var cartDto = await _cartService.GetCartByUserId(userId);
-
-        if (cartDto == null || cartDto.CartItems.Count == 0)
-            throw new InvalidOperationException("Carrinho não encontrado ou vazio.");
+        await _unitOfWork.BeginTransactionAsync();
 
         try
         {
+            var cartDto = await _cartService.GetCartByUserId(userId);
+
+            if (cartDto == null || cartDto.CartItems.Count == 0)
+            {
+                throw new InvalidOrderException("Carrinho não encontrado ou vazio.");
+            }
+
             foreach (var item in cartDto.CartItems)
-                await ValidateAndUpdateStockAsync(item);
+            {
+                await _productApiService.UpdateProductStockAsync(item.ProductId, item.Qauntity);
+            }
 
             var order = _mapper.Map<Order>(cartDto);
             order.UserId = cartDto.CartHeader.UserId;
             order.OrderDate = DateTime.UtcNow;
-
             order.Total = cartDto.CartItems.Sum(i => i.Product.Price * i.Qauntity);
 
             var createdOrder = await _writeRepository.AddOrderAsync(order);
 
             await _cartService.CleanCart(order.UserId);
 
+            await _unitOfWork.CommitTransactionAsync();
+
             return _mapper.Map<OrderDTO>(createdOrder);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            await RevertStockChangesAsync(cartDto.CartItems);
-
-            throw new InvalidOperationException("Falha ao finalizar o pedido. O estoque foi revertido.", ex);
+            await _unitOfWork.RollbackTransactionAsync();
+            throw;
         }
     }
 
-    private async Task ValidateAndUpdateStockAsync(CartItemDTO item)
-    {
-        var product = await _productApiService.GetProductByIdAsync(item.ProductId);
+    //private async Task ValidateAndUpdateStockAsync(CartItemDTO item)
+    //{
+    //    var product = await _productApiService.GetProductByIdAsync(item.ProductId);
 
-        if (product == null)
-            throw new InvalidOperationException($"Produto com ID {item.ProductId} não encontrado na API de Estoque.");
+    //    if (product == null)
+    //        throw new ProductNotFoundException($"Produto com ID {item.ProductId} não encontrado na API de Estoque.");
 
-        await _productApiService.UpdateProductStockAsync(item.ProductId, item.Qauntity);
-    }
+    //    await _productApiService.UpdateProductStockAsync(item.ProductId, item.Qauntity);
+    //}
 
-    private async Task RevertStockChangesAsync(IEnumerable<CartItemDTO> cartItems)
-    {
-        foreach (var item in cartItems)
-        {
-            try
-            {
-                var product = await _productApiService.GetProductByIdAsync(item.ProductId);
-                if (product != null)
-                {
-                    long revertedStock = product.Stock + item.Qauntity;
-                    await _productApiService.UpdateProductStockAsync(item.ProductId, revertedStock);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Falha crítica ao reverter o estoque para o produto {ProductId}.", item.ProductId);
-            }
-        }
-    }
+    //private async Task RevertStockChangesAsync(IEnumerable<CartItemDTO> cartItems)
+    //{
+    //    foreach (var item in cartItems)
+    //    {
+
+    //        var product = await _productApiService.GetProductByIdAsync(item.ProductId);
+    //        if (product != null)
+    //        {
+    //            long revertedStock = product.Stock + item.Qauntity;
+    //            await _productApiService.UpdateProductStockAsync(item.ProductId, revertedStock);
+    //        }
+    //    }
+    //}
 
 }

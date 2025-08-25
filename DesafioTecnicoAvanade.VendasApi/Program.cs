@@ -1,6 +1,7 @@
 using DesafioTecnicoAvanade.VendasApi.DataAccess.Context;
 using DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts;
 using DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories;
+using DesafioTecnicoAvanade.VendasApi.Filters;
 using DesafioTecnicoAvanade.VendasApi.Services;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
 using DesafioTecnicoAvanade.VendasApi.Services.External;
@@ -92,6 +93,7 @@ builder.Services.AddHttpClient<IProductApiService, ProductApiService>(client =>
     client.BaseAddress = new Uri("http://localhost:5078");
 });
 
+builder.Services.AddMvc(opt => opt.Filters.Add(typeof(ExceptionFilter)));
 
 var app = builder.Build();
 

@@ -3,8 +3,10 @@ using DesafioTecnicoAvanade.EstoqueApi.DataAccess.Context;
 using DesafioTecnicoAvanade.EstoqueApi.DataAccess.InterfacesRepositories;
 using DesafioTecnicoAvanade.EstoqueApi.DataAccess.Repositories;
 using DesafioTecnicoAvanade.EstoqueApi.DataAccess.UnitOfWork;
+using DesafioTecnicoAvanade.EstoqueApi.Filters;
 using DesafioTecnicoAvanade.EstoqueApi.Services.Category;
 using DesafioTecnicoAvanade.EstoqueApi.Services.Product;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -88,6 +90,8 @@ builder.Services.AddAuthorization(options =>
             policy.RequireClaim("scope", "read","write");
         });
     });
+
+builder.Services.AddMvc(opt => opt.Filters.Add(typeof(ExceptionFilter)));
 
 
 var app = builder.Build();

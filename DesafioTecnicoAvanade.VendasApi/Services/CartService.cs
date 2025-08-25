@@ -44,16 +44,16 @@ public class CartService : ICartService
         return cartDTO;
     }
 
-    public async Task<CartDTO> AddCart(RequestCartDTO requestCartDTO)
+    public async Task<CartDTO> AddCart(string userId, RequestCartDTO requestCartDTO)
     {
         if (requestCartDTO == null)
             throw new ArgumentException("Request não pode ser nulo.");
 
-        var cartHeader = await _readRepository.GetCartHeaderByUserIdAsync(requestCartDTO.UserId);
+        var cartHeader = await _readRepository.GetCartHeaderByUserIdAsync(userId);
 
         if (cartHeader == null)
         {
-            cartHeader = new CartHeader { UserId = requestCartDTO.UserId };
+            cartHeader = new CartHeader { UserId = userId };
             await _writeRepository.AddCartHeaderAsync(cartHeader);
         }
 
@@ -81,7 +81,7 @@ public class CartService : ICartService
             }
         }
 
-        return await GetCartByUserId(requestCartDTO.UserId);
+        return await GetCartByUserId(userId);
     }
 
 
