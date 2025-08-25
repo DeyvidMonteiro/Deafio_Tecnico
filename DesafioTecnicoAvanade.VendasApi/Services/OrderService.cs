@@ -5,40 +5,46 @@ using DesafioTecnicoAvanade.VendasApi.Models;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
 using DesafioTecnicoAvanade.VendasApi.Services.External;
 
-namespace DesafioTecnicoAvanade.VendasApi.Services
+namespace DesafioTecnicoAvanade.VendasApi.Services;
+
+public class OrderService : IOrderService
 {
-    public class OrderService : IOrderService
+    private readonly IOrderReadOnlyRepository _readRepository;
+    private readonly IOrderWriteOnlyRepository _writeRepository;
+    private readonly ICartService _cartService;
+    private readonly IMapper _mapper;
+    private readonly IProductApiService _productApiService;
+    private readonly ILogger<OrderService> _logger;
+
+    public OrderService(IOrderReadOnlyRepository readRepository,
+        IOrderWriteOnlyRepository writeRepository, IMapper mapper
+        , ICartService cartService, IProductApiService productService, ILogger<OrderService> logger)
     {
-        private readonly IOrderReadOnlyRepository _readRepository;
-        private readonly IOrderWriteOnlyRepository _writeRepository;
-        private readonly ICartService _cartService;
-        private readonly IMapper _mapper;
-        private readonly IProductApiService _productApiService;
+        _readRepository = readRepository;
+        _writeRepository = writeRepository;
+        _mapper = mapper;
+        _cartService = cartService;
+        _productApiService = productService;
+        _logger = logger;
+    }
 
-        public OrderService(IOrderReadOnlyRepository readRepository,
-            IOrderWriteOnlyRepository writeRepository, IMapper mapper
-            , ICartService cartService, IProductApiService productService)
+    public async Task<OrderDTO> GetOrderById(int orderId)
+    {
+        var order = await _readRepository.GetOrderByIdAsync(orderId);
+        if (order == null) return null;
+
+        return _mapper.Map<OrderDTO>(order);
+    }
+
+    public async Task<OrderDTO> FinalizeOrder(string userId)
+    {
+        var cartDto = await _cartService.GetCartByUserId(userId);
+
+        if (cartDto == null || cartDto.CartItems.Count == 0)
+            throw new InvalidOperationException("Carrinho não encontrado ou vazio.");
+
+        try
         {
-            _readRepository = readRepository;
-            _writeRepository = writeRepository;
-            _mapper = mapper;
-            _cartService = cartService;
-            _productApiService = productService;
-        }
-
-        public async Task<OrderDTO> GetOrderById(int orderId)
-        {
-            var order = await _readRepository.GetOrderByIdAsync(orderId);
-            if (order == null) return null;
-
-            return _mapper.Map<OrderDTO>(order);
-        }
-
-        public async Task<OrderDTO> FinalizeOrder(CartDTO cartDto)
-        {
-            if (cartDto == null || cartDto.CartHeader == null || !cartDto.CartItems.Any())
-                throw new InvalidOperationException("Carrinho vazio ou inválido.");
-
             foreach (var item in cartDto.CartItems)
                 await ValidateAndUpdateStockAsync(item);
 
@@ -49,24 +55,47 @@ namespace DesafioTecnicoAvanade.VendasApi.Services
             order.Total = cartDto.CartItems.Sum(i => i.Product.Price * i.Qauntity);
 
             var createdOrder = await _writeRepository.AddOrderAsync(order);
+
             await _cartService.CleanCart(order.UserId);
 
             return _mapper.Map<OrderDTO>(createdOrder);
         }
-
-        private async Task ValidateAndUpdateStockAsync(CartItemDTO item)
+        catch (Exception ex)
         {
-            var product = await _productApiService.GetProductByIdAsync(item.ProductId);
+            await RevertStockChangesAsync(cartDto.CartItems);
 
-            if (product == null)
-                throw new InvalidOperationException($"Produto {item.ProductId} não encontrado.");
-
-            if (product.Stock < item.Qauntity)
-                throw new InvalidOperationException($"Produto {product.Name} sem estoque suficiente.");
-
-            long newStock = product.Stock - item.Qauntity;
-            await _productApiService.UpdateProductStockAsync(item.ProductId, newStock);
+            throw new InvalidOperationException("Falha ao finalizar o pedido. O estoque foi revertido.", ex);
         }
-
     }
+
+    private async Task ValidateAndUpdateStockAsync(CartItemDTO item)
+    {
+        var product = await _productApiService.GetProductByIdAsync(item.ProductId);
+
+        if (product == null)
+            throw new InvalidOperationException($"Produto com ID {item.ProductId} não encontrado na API de Estoque.");
+
+        await _productApiService.UpdateProductStockAsync(item.ProductId, item.Qauntity);
+    }
+
+    private async Task RevertStockChangesAsync(IEnumerable<CartItemDTO> cartItems)
+    {
+        foreach (var item in cartItems)
+        {
+            try
+            {
+                var product = await _productApiService.GetProductByIdAsync(item.ProductId);
+                if (product != null)
+                {
+                    long revertedStock = product.Stock + item.Qauntity;
+                    await _productApiService.UpdateProductStockAsync(item.ProductId, revertedStock);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Falha crítica ao reverter o estoque para o produto {ProductId}.", item.ProductId);
+            }
+        }
+    }
+
 }

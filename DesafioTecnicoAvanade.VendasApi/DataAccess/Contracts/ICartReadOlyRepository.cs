@@ -5,6 +5,7 @@ namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts
 {
     public interface ICartReadOlyRepository
     {
+        Task<CartHeader> GetCartWithItemsByUserIdAsync(string userId);
         Task<CartHeader> GetCartHeaderByUserIdAsync(string userId);
         IQueryable<CartItem> GetCartItemsByHeaderId(int cartHeaderId);
         Task<CartItem> GetCartItemAsync(int productId, int cartHeaderId);

@@ -5,6 +5,6 @@ namespace DesafioTecnicoAvanade.VendasApi.Services.External
     public interface IProductApiService
     {
         Task<ProductDTO> GetProductByIdAsync(int productId);
-        Task UpdateProductStockAsync(int productId, long newStock);
+        Task UpdateProductStockAsync(int productId, long quantityToDecrement);
     }
 }

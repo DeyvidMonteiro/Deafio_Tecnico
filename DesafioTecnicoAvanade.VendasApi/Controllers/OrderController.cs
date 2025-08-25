@@ -1,4 +1,5 @@
 ﻿using DesafioTecnicoAvanade.VendasApi.DTOs;
+using DesafioTecnicoAvanade.VendasApi.DTOs.Request;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,10 +24,10 @@ public class OrderController : ControllerBase
         return Ok(order);
     }
 
-    [HttpPost("finalize")]
-    public async Task<ActionResult<OrderDTO>> FinalizeOrder(CartDTO cartDto)
+    [HttpPost("finalize/{userId}")]
+    public async Task<ActionResult<OrderDTO>> FinalizeOrder(string userId)
     {
-        var order = await _orderService.FinalizeOrder(cartDto);
+        var order = await _orderService.FinalizeOrder(userId);
         if (order == null) return BadRequest();
         return Ok(order);
     }

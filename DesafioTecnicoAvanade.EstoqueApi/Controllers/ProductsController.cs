@@ -55,7 +55,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Roles = Role.Admin)]
+    //[Authorize(Roles = Role.Admin)]
     public async Task<ActionResult> Put(int id, [FromBody] ProductDTO productDTO)
     {
         if (id != productDTO.Id || productDTO is null)
@@ -67,12 +67,27 @@ public class ProductsController : ControllerBase
 
     }
 
-    [HttpPut("{id}/stock")]
-    [Authorize]
-    public async Task<ActionResult> UpdateStock(int id, [FromBody] StockUpdateDTO stockDto)
+    [HttpPut("{id}/decrement")]
+    //[Authorize]
+    public async Task<ActionResult> DecrementStock(int id, [FromBody] int quantity)
     {
-        await _services.DecrementStock(id, stockDto.Stock);
-        return NoContent();
+        try
+        {
+            await _services.DecrementStock(id, quantity);
+            return NoContent();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "Ocorreu um erro interno no servidor.");
+        }
     }
 
     [HttpDelete("{id:int}")]

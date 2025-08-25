@@ -23,10 +23,9 @@ namespace DesafioTecnicoAvanade.VendasApi.Services.External
             return await response.Content.ReadFromJsonAsync<ProductDTO>();
         }
 
-        public async Task UpdateProductStockAsync(int productId, long newStock)
+        public async Task UpdateProductStockAsync(int productId, long quantityToDecrement)
         {
-            var payload = new { Stock = newStock };
-            var response = await _httpClient.PutAsJsonAsync($"/api/products/{productId}/stock", payload);
+            var response = await _httpClient.PutAsJsonAsync($"/api/products/{productId}/decrement", quantityToDecrement);
             response.EnsureSuccessStatusCode();
         }
     }

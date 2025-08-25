@@ -16,6 +16,12 @@ namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<CartHeader> GetCartWithItemsByUserIdAsync(string userId)
+        {
+            // Usa Include para carregar a lista de itens relacionados
+            return await _appDbContext.CartHeaders.Include(h => h.CartItems).FirstOrDefaultAsync(h => h.UserId == userId);
+        }
+
         public async Task<CartHeader> GetCartHeaderByUserIdAsync(string userId)
         {
             return await _appDbContext.CartHeaders.FirstOrDefaultAsync(c => c.UserId == userId);
