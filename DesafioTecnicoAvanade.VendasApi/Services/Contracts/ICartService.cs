@@ -1,14 +1,16 @@
 ﻿using DesafioTecnicoAvanade.VendasApi.DTOs;
+using DesafioTecnicoAvanade.VendasApi.DTOs.Request;
 using DesafioTecnicoAvanade.VendasApi.Models;
 
 namespace DesafioTecnicoAvanade.VendasApi.Services.Contracts
 {
     public interface ICartService
     {
-        Task<CartDTO> GetCartByUserIdAsync(string userId);
-        Task<CartDTO> UpdateCartAsync(CartDTO cartDTO);
-        Task<bool> CleanCartAsync(string userId);
-        Task<bool> DeleteItemCartAsync(int cartItemId);
+        Task<CartDTO> GetCartByUserId(string userId);
+        Task<CartDTO> AddCart(RequestCartDTO request);
+        Task<bool> CleanCart(string userId);
+        Task<bool> DeleteItemCart(int cartItemId);
+
 
     }
 }

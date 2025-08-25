@@ -10,7 +10,8 @@ namespace DesafioTecnicoAvanade.EstoqueApi.Services.Product
         private readonly IProductWriteOnlyRepository _writeRepository;
         private readonly IMapper _mapper;
 
-        public ProductService(IProductReadOnlyRepository readRepository, IProductWriteOnlyRepository writeRepository, IMapper mapper)
+        public ProductService(IProductReadOnlyRepository readRepository,
+            IProductWriteOnlyRepository writeRepository, IMapper mapper)
         {
             _readRepository = readRepository;
             _writeRepository = writeRepository;

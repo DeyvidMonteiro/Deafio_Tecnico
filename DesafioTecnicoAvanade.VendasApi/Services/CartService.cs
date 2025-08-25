@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts;
 using DesafioTecnicoAvanade.VendasApi.DTOs;
+using DesafioTecnicoAvanade.VendasApi.DTOs.Request;
 using DesafioTecnicoAvanade.VendasApi.Models;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
+using DesafioTecnicoAvanade.VendasApi.Services.External;
 using Microsoft.EntityFrameworkCore;
 
 namespace DesafioTecnicoAvanade.VendasApi.Services
@@ -12,53 +14,88 @@ namespace DesafioTecnicoAvanade.VendasApi.Services
         private readonly ICartReadOlyRepository _readRepository;
         private readonly ICartWriteOnlyRepository _writeRepository;
         private readonly IMapper _mapper;
+        private readonly IProductApiService _productApiService;
 
-        public CartService(ICartReadOlyRepository rideRepository, ICartWriteOnlyRepository writeRepository, IMapper mapper)
+        public CartService(ICartReadOlyRepository readeRepository,
+            ICartWriteOnlyRepository writeRepository, IMapper mapper,
+            IProductApiService productApiService)
         {
-            _readRepository = rideRepository;
+            _readRepository = readeRepository;
             _writeRepository = writeRepository;
             _mapper = mapper;
+            _productApiService = productApiService;
         }
 
-        public async Task<CartDTO> GetCartByUserIdAsync(string userId)
+        public async Task<CartDTO> GetCartByUserId(string userId)
         {
             var cartHeader = await _readRepository.GetCartHeaderByUserIdAsync(userId);
-
             if (cartHeader == null)
                 return null;
 
-            var cartItems = _readRepository.GetCartItemsByHeaderId(cartHeader.Id);
+            var cartItems = _readRepository.GetCartItemsByHeaderId(cartHeader.Id).ToList();
 
-            var cart = new Cart
+            var cartDTO = _mapper.Map<CartDTO>(new Cart
             {
                 CartHeader = cartHeader,
                 CartItems = cartItems
-            };
+            });
 
-            return _mapper.Map<CartDTO>(cart);
+            foreach (var item in cartDTO.CartItems)
+            {
+                var product = await _productApiService.GetProductByIdAsync(item.ProductId);
+                item.Product = _mapper.Map<ProductDTO>(product);
+            }
+
+            return cartDTO;
         }
 
-        public async Task<CartDTO> UpdateCartAsync(CartDTO cartDTO)
+        public async Task<CartDTO> AddCart(RequestCartDTO requestCartDTO)
         {
-            var cart = _mapper.Map<Cart>(cartDTO);
+            if (requestCartDTO == null)
+                throw new ArgumentException("não pode ser nulo.");
 
-            await SaveProductInDatabase(cartDTO, cart);
-
-            var cartHeader = await _readRepository.GetCartHeaderByUserIdAsync(cart.CartHeader.UserId);
+            var cartHeader = await _readRepository.GetCartHeaderByUserIdAsync(requestCartDTO.UserId);
 
             if (cartHeader == null)
             {
-                await CreateCartHeaderAndItems(cart);
-            }
-            else
-            {
-                await UpdateQuantityAndItems(cartDTO, cart, cartHeader);
+                cartHeader = new CartHeader { UserId = requestCartDTO.UserId };
+                await _writeRepository.AddCartHeaderAsync(cartHeader);
             }
 
-            return _mapper.Map<CartDTO>(cart);
+            foreach (var item in requestCartDTO.CartItems)
+            {
+                if (item.Qauntity <= 0)
+                    throw new ArgumentException("A quantidade do item deve ser maior que zero.");
+
+
+                var productDTO = await _productApiService.GetProductByIdAsync(item.ProductId);
+                if (productDTO == null)
+                    throw new ArgumentException($"Produto com ID {item.ProductId} não encontrado na API de Estoque.");
+
+                var existingItem = await _readRepository.GetCartItemAsync(item.ProductId, cartHeader.Id);
+
+                if (existingItem != null)
+                {
+                    existingItem.Qauntity += item.Qauntity;
+                    await _writeRepository.UpdateCartItemAsync(existingItem);
+                }
+                else
+                {
+                    var newItem = new CartItem
+                    {
+                        ProductId = item.ProductId,
+                        CartHeaderId = cartHeader.Id,
+                        Qauntity = item.Qauntity
+                    };
+                    await _writeRepository.AddCartItemAsync(newItem);
+                }
+            }
+
+            return await BuildCartDTO(cartHeader);
         }
 
-        public async Task<bool> CleanCartAsync(string userId)
+
+        public async Task<bool> CleanCart(string userId)
         {
             var cartHeader = await _readRepository.GetCartHeaderByUserIdAsync(userId);
 
@@ -69,12 +106,10 @@ namespace DesafioTecnicoAvanade.VendasApi.Services
             foreach (var item in cartItems)
                 await _writeRepository.DeleteCartItemAsync(item);
 
-            await _writeRepository.DeleteCartHeaderAsync(cartHeader);
-
             return true;
         }
 
-        public async Task<bool> DeleteItemCartAsync(int cartItemId)
+        public async Task<bool> DeleteItemCart(int cartItemId)
         {
             var cartItem = await _readRepository.GetCartItemByIdAsync(cartItemId);
             if (cartItem == null) return false;
@@ -95,45 +130,45 @@ namespace DesafioTecnicoAvanade.VendasApi.Services
             return true;
         }
 
-        private async Task CreateCartHeaderAndItems(Cart cart)
+
+        private async Task<CartDTO> BuildCartDTO(CartHeader cartHeader)
         {
-            await _writeRepository.AddCartHeaderAsync(cart.CartHeader);
-
-            var item = cart.CartItems.First();
-            item.CartHeaderId = cart.CartHeader.Id;
-            item.Product = null;
-
-            await _writeRepository.AddCartItemAsync(item);
-        }
-
-        private async Task SaveProductInDatabase(CartDTO cartDTO, Cart cart)
-        {
-            var product = await _readRepository.GetProductByIdAsync(cartDTO.CartItems.First().ProductId);
-            if (product == null)
+            var cartDTO = new CartDTO
             {
-                await _writeRepository.AddProductAsync(cart.CartItems.First().Product);
-            }
-        }
-        private async Task UpdateQuantityAndItems(CartDTO cartDTO, Cart cart, CartHeader cartHeader)
-        {
-            var cartDetail = await _readRepository.GetCartItemAsync(cartDTO.CartItems.First().ProductId, cartHeader.Id);
+                CartHeader = new CartHeaderDTO
+                {
+                    Id = cartHeader.Id,
+                    UserId = cartHeader.UserId
+                },
+                CartItems = new List<CartItemDTO>()
+            };
 
-            var item = cart.CartItems.First();
-            item.Product = null;
+            var cartItems = _readRepository.GetCartItemsByHeaderId(cartHeader.Id).ToList();
 
-            if (cartDetail == null)
+            foreach (var item in cartItems)
             {
-                item.CartHeaderId = cartHeader.Id;
-                await _writeRepository.AddCartItemAsync(item);
-            }
-            else
-            {
-                item.Id = cartDetail.Id;
-                item.CartHeaderId = cartDetail.CartHeaderId;
-                item.Qauntity += cartDetail.Qauntity;
-                await _writeRepository.UpdateCartItemAsync(item);
+                var product = await _productApiService.GetProductByIdAsync(item.ProductId);
+
+                cartDTO.CartItems.Add(new CartItemDTO
+                {
+                    Id = item.Id,
+                    CartHeaderId = item.CartHeaderId,
+                    ProductId = item.ProductId,
+                    Qauntity = item.Qauntity,
+                    Product = new ProductDTO
+                    {
+                        Id = product.Id,
+                        Name = product.Name ?? string.Empty,
+                        Price = product.Price,
+                        Description = product.Description ?? string.Empty,
+                        Stock = product.Stock,
+                        CategoryName = string.Empty
+                    }
+                });
             }
 
+            return cartDTO;
         }
+
     }
 }

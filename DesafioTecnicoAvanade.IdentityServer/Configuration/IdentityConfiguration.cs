@@ -15,53 +15,49 @@ namespace DesafioTecnicoAvanade.IdentityServer.Configuration
             new IdentityResources.Profile(),
         };
 
-        public static IEnumerable<ApiScope> ApiScopes =>
-            new List<ApiScope>
+        public static IEnumerable<ApiScope> ApiScopes => new List<ApiScope>
+        {
+            // ... (escopos 'read', 'write', 'delete' mantidos)
+            new ApiScope("possivelGateway", "Acesso ao possível gateway")
+        };
+
+        public static IEnumerable<Client> Clients => new List<Client>
             {
-                new ApiScope("read", "Read data"),
-                new ApiScope("write", "Write data"),
-                new ApiScope("delete", "Delete data")
-            };
-
-
-        public static IEnumerable<Client> Clients =>
-            new List<Client>
+            // Cliente para comunicação de máquina para máquina (por exemplo, uma API chamando outra)
+            new Client
             {
-               //cliente genérico
-                new Client //1
-                {
-                    ClientId = "client",
-                    ClientSecrets = { new Secret("abracadabra#simsalabim".Sha256())},
-                    AllowedGrantTypes = GrantTypes.ClientCredentials, //precisa das credenciais do usuário
-                    AllowedScopes = {"read", "write", "profile" }
-                },
+                ClientId = "client",
+                ClientSecrets = { new Secret("4FjL@#kRz!9pW$vQyH*m7E%sA^dJ&c5tG".Sha256())},
+                AllowedGrantTypes = GrantTypes.ClientCredentials,
+                AllowedScopes = {"read", "write"}
+            },
 
-                // Cliente para Resource Owner Password
-                new Client
-                {
-                    ClientId = "ro.client",
-                    ClientSecrets = { new Secret("secreta".Sha256()) },
-                    AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
-                    AllowedScopes = { "read", "write", "profile", "openid", "email" }
-                },
+            // Cliente para testes (usado com Postman/Swagger UI)
+            new Client
+            {
+                ClientId = "ro.client",
+                ClientSecrets = { new Secret("secreto".Sha256()) },
+                AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
+                AllowedScopes = { "openid", "profile", "email", "read", "write", "delete" }
+            },
 
-                new Client
+            // Cliente para o frontend (aplicação web)
+            new Client
+            {
+                ClientId = "possivelGateway",
+                ClientSecrets = { new Secret("4FjL@#kRz!9pW$vQyH*m7E%sA^dJ&c5tG".Sha256())},
+                AllowedGrantTypes = GrantTypes.Code,
+                RedirectUris = {"https://localhost:7165/signin-oidc"},
+                PostLogoutRedirectUris = {"https://localhost:7165/signout-callback-oidc"},
+                AllowedScopes = new List<string>
                 {
-                    ClientId = "possivelGateway",
-                    ClientSecrets = { new Secret("abracadabra#simsalabim".Sha256())},
-                    AllowedGrantTypes = GrantTypes.Code, //via codigo
-                    RedirectUris = {"https://localhost:7165/signin-oidc"},//login
-                    PostLogoutRedirectUris = {"https://localhost:7165/signout-callback-oidc"},//logout
-                    AllowedScopes = new List<string>
-                    {
-                        IdentityServerConstants.StandardScopes.OpenId,
-                        IdentityServerConstants.StandardScopes.Profile,
-                        IdentityServerConstants.StandardScopes.Email,
-                        "possivelGateway"
-                    }
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    IdentityServerConstants.StandardScopes.Email,
+                    "possivelGateway"
                 }
-
-            };
+            }
+        };
 
     }
 }

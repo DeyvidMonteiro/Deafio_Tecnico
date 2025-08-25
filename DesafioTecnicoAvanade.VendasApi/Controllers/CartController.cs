@@ -1,38 +1,42 @@
-﻿using DesafioTecnicoAvanade.VendasApi.DTOs;
+﻿using AutoMapper;
+using DesafioTecnicoAvanade.VendasApi.DTOs;
+using DesafioTecnicoAvanade.VendasApi.DTOs.Request;
+using DesafioTecnicoAvanade.VendasApi.Services;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DesafioTecnicoAvanade.VendasApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class CartController : ControllerBase
     {
         private readonly ICartService _service;
+        private readonly IMapper _mapper;
 
-        public CartController(ICartService service)
+        public CartController(ICartService service, IMapper mapper)
         {
             _service = service;
+            _mapper = mapper;
         }
 
         [HttpGet("getcart/{userId}")]
         public async Task<ActionResult<CartDTO>> GetByUserId(string userId)
         {
-            var cartDto = await _service.GetCartByUserIdAsync(userId);
+            var cartDto = await _service.GetCartByUserId(userId);
 
-            if (cartDto is null)
-                return NotFound();
+            if (cartDto is null || !cartDto.CartItems.Any())
+                return NotFound(new { message = "Não há carrinhos para este usuário." });
 
             return Ok(cartDto);
 
         }
 
         [HttpPost("addcart")]
-        public async Task<ActionResult<CartDTO>> AddCart(CartDTO cartDTO)
+        public async Task<ActionResult<CartDTO>> AddCart(RequestCartDTO request)
         {
-            var cart = await _service.UpdateCartAsync(cartDTO);
+            var cart = await _service.AddCart(request);
 
             if (cart is null)
                 return BadRequest("Não foi possível criar o carrinho.");
@@ -40,26 +44,26 @@ namespace DesafioTecnicoAvanade.VendasApi.Controllers
             return Ok(cart);
         }
 
-        [HttpPost("updatecart")]
-        public async Task<ActionResult<CartDTO>> UpdateCart(CartDTO cartDTO)
+        [HttpDelete("deletecartitem/{id}")]
+        public async Task<ActionResult<bool>> DeleteCartItem(int id)
         {
-            var cart = await _service.UpdateCartAsync(cartDTO);
-
-            if (cart is null)
-                return BadRequest();
-
-            return Ok(cart);
-        }
-
-        [HttpDelete("deletecart/{id}")]
-        public async Task<ActionResult<bool>> DeleteCart(int id)
-        {
-            var status = await _service.DeleteItemCartAsync(id);
+            var status = await _service.DeleteItemCart(id);
 
             if (!status)
                 return BadRequest("Não foi possível deletar o item do carrinho.");
 
-            return Ok(status);
+            return NoContent();
+        }
+
+        [HttpDelete("ClearCart")]
+        public async Task<IActionResult> ClearCart(string userId)
+        {
+            var result = await _service.CleanCart(userId);
+            if (!result)
+                return NotFound("Carrinho não encontrado.");
+            
+
+            return Ok("Carrinho limpo com sucesso.");
         }
     }
 

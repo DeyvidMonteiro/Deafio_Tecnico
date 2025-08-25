@@ -1,7 +1,7 @@
 using DesafioTecnicoAvanade.IdentityServer.Configuration;
 using DesafioTecnicoAvanade.IdentityServer.Data;
+using DesafioTecnicoAvanade.IdentityServer.SeedDatabase;
 using DesafioTecnicoAvanade.IdentityServer.Services;
-using Duende.IdentityServer.AspNetIdentity;
 using Duende.IdentityServer.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -80,6 +80,7 @@ var builderIdentityServer = builder.Services.AddIdentityServer(options =>
 builderIdentityServer.AddDeveloperSigningCredential();
 
 builder.Services.AddScoped<IProfileService, ProfileAppService>();
+builder.Services.AddScoped<IDatabaseSeedInitializer, DatabaseIdentityServerInitializer>();
 
 builder.Services.AddCors(options =>
 {
@@ -127,8 +128,22 @@ app.UseIdentityServer();
 
 app.UseAuthorization();
 
+SeedDatabaseIdentityServer(app);
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+void SeedDatabaseIdentityServer(IApplicationBuilder app)
+{
+    using (var serviceScope = app.ApplicationServices.CreateScope())
+    {
+        var initRolesScopes = serviceScope.ServiceProvider.GetService<IDatabaseSeedInitializer>();
+
+        initRolesScopes.InitializerSeedRoles();
+        initRolesScopes.InitializerSeedUser();
+    }
+
+}

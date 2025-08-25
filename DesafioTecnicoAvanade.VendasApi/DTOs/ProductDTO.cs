@@ -1,7 +1,10 @@
-﻿namespace DesafioTecnicoAvanade.VendasApi.DTOs
+﻿using System.Text.Json.Serialization;
+
+namespace DesafioTecnicoAvanade.VendasApi.DTOs
 {
     public class ProductDTO
     {
+        [JsonIgnore]
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }

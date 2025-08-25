@@ -7,7 +7,6 @@ namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts
     {
         Task AddCartHeaderAsync(CartHeader cartHeader);
         Task AddCartItemAsync(CartItem cartItem);
-        Task AddProductAsync(Product product);
         Task UpdateCartItemAsync(CartItem cartItem);
         Task DeleteCartItemAsync(CartItem cartItem);
         Task DeleteCartHeaderAsync(CartHeader cartHeader);

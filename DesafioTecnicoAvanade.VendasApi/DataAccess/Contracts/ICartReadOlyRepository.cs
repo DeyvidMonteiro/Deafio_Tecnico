@@ -9,7 +9,6 @@ namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts
         IQueryable<CartItem> GetCartItemsByHeaderId(int cartHeaderId);
         Task<CartItem> GetCartItemAsync(int productId, int cartHeaderId);
         Task<CartItem> GetCartItemByIdAsync(int cartItemId);
-        Task<Product> GetProductByIdAsync(int productId);
         Task<CartHeader> GetCartHeaderByIdAsync(int cartHeaderId);
 
     }

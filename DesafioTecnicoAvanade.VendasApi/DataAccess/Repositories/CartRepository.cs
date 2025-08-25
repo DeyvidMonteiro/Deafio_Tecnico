@@ -26,9 +26,9 @@ namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories
             return await _appDbContext.CartHeaders.FirstOrDefaultAsync(c => c.Id == cartHeaderId);
         }
 
-        public IQueryable<CartItem> GetCartItemsByHeaderId(int cartHeaderId)
+        public IQueryable<CartItem> GetCartItemsByHeaderId(int cartHeaderId)//
         {
-            return _appDbContext.CartItems.Where(c => c.CartHeaderId == cartHeaderId).Include(c => c.Product);
+            return _appDbContext.CartItems.Where(c => c.CartHeaderId == cartHeaderId);
         }
 
         public async Task<CartItem> GetCartItemAsync(int productId, int cartHeaderId)
@@ -41,11 +41,6 @@ namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories
             return await _appDbContext.CartItems.FirstOrDefaultAsync(c => c.Id == cartItemId);
         }
 
-        public async Task<Product> GetProductByIdAsync(int productId)
-        {
-            return await _appDbContext.Products.FirstOrDefaultAsync(p => p.Id == productId);
-        }
-
         public async Task AddCartHeaderAsync(CartHeader cartHeader)
         {
             _appDbContext.CartHeaders.Add(cartHeader);
@@ -55,12 +50,6 @@ namespace DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories
         public async Task AddCartItemAsync(CartItem cartItem)
         {
             _appDbContext.CartItems.Add(cartItem);
-            await _unitOfWork.Commit();
-        }
-
-        public async Task AddProductAsync(Product product)
-        {
-            _appDbContext.Products.Add(product);
             await _unitOfWork.Commit();
         }
 

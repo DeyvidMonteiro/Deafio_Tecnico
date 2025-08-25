@@ -3,6 +3,7 @@ using DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts;
 using DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories;
 using DesafioTecnicoAvanade.VendasApi.Services;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
+using DesafioTecnicoAvanade.VendasApi.Services.External;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -67,12 +68,10 @@ builder.Services.AddCors(options =>
                           .AllowAnyHeader());
 });
 
-
-//Terminar de implementar, lembrar de configurar o appsetings.json
 builder.Services.AddAuthentication("Bearer")
        .AddJwtBearer("Bearer", options =>
        {
-           options.Authority = builder.Configuration["IdentityServer:ApplicationUrl"]; // URL do IdentityServer
+           options.Authority = builder.Configuration["IdentityServer:ApplicationUrl"];
            options.TokenValidationParameters = new TokenValidationParameters
            {
                ValidateAudience = false
@@ -84,9 +83,15 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("ApiScope", policy =>
     {
         policy.RequireAuthenticatedUser();
-        policy.RequireClaim("scope", "read"); // substitir pelo escopo que a API vai exigir
+        policy.RequireClaim("scope", "read", "write");
     });
 });
+
+builder.Services.AddHttpClient<IProductApiService, ProductApiService>(client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5078");
+});
+
 
 var app = builder.Build();
 
