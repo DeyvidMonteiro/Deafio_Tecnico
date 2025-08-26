@@ -2,6 +2,7 @@ using DesafioTecnicoAvanade.VendasApi.DataAccess.Context;
 using DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts;
 using DesafioTecnicoAvanade.VendasApi.DataAccess.Repositories;
 using DesafioTecnicoAvanade.VendasApi.Filters;
+using DesafioTecnicoAvanade.VendasApi.RabbitMQ;
 using DesafioTecnicoAvanade.VendasApi.Services;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
 using DesafioTecnicoAvanade.VendasApi.Services.External;
@@ -59,6 +60,7 @@ builder.Services.AddScoped<IOrderWriteOnlyRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderReadOnlyRepository, OrderRepository>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddSingleton<IMessageBus, RabbitMQMessageBus>();
 
 
 builder.Services.AddCors(options =>

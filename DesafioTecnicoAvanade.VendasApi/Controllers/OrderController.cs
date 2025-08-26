@@ -1,5 +1,4 @@
 ﻿using DesafioTecnicoAvanade.VendasApi.DTOs;
-using DesafioTecnicoAvanade.VendasApi.DTOs.Request;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

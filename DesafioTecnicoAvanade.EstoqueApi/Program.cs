@@ -1,12 +1,11 @@
-using AutoMapper;
 using DesafioTecnicoAvanade.EstoqueApi.DataAccess.Context;
 using DesafioTecnicoAvanade.EstoqueApi.DataAccess.InterfacesRepositories;
 using DesafioTecnicoAvanade.EstoqueApi.DataAccess.Repositories;
 using DesafioTecnicoAvanade.EstoqueApi.DataAccess.UnitOfWork;
 using DesafioTecnicoAvanade.EstoqueApi.Filters;
+using DesafioTecnicoAvanade.EstoqueApi.RabbitMQ;
 using DesafioTecnicoAvanade.EstoqueApi.Services.Category;
 using DesafioTecnicoAvanade.EstoqueApi.Services.Product;
-using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -70,6 +69,8 @@ builder.Services.AddScoped<IProductWriteOnlyRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryServices, CategoryServices>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddSingleton<IQueueConsumer, RabbitMQBusConsumer>();
+builder.Services.AddHostedService<RabbitMQHostedService>();
 
 
 builder.Services.AddAuthentication("Bearer")
