@@ -74,4 +74,23 @@ http://localhost:5000/api/vendas/order
 
 Identity API:
 
-http://localhost:5000/api/identity/register
+POST http://localhost:5000/api/identity/register
+
+POST http://localhost:5000/api/identity/connect/token 
+
+Postman(gerando token)
+
+Content-Type: application/x-www-form-urlencoded
+
+grant_type = password     (padrao)
+
+client_id = ro.client     (padrao)
+
+client_secret = secreto   (padrao)
+
+username = usuario que você criou    
+
+password = senha que você criou
+
+scope = openid profile email read write delete    (padrao)
+
