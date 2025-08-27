@@ -3,31 +3,34 @@ using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Route("api/[controller]")]
-[ApiController]
-[Authorize]
-public class OrderController : ControllerBase
+namespace DesafioTecnicoAvanade.VendasApi.Controllers
 {
-    private readonly IOrderService _orderService;
-
-    public OrderController(IOrderService orderService)
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize]
+    public class OrderController : ControllerBase
     {
-        _orderService = orderService;
-    }
+        private readonly IOrderService _orderService;
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<OrderDTO>> GetOrder(int id)
-    {
-        var order = await _orderService.GetOrderById(id);
-        if (order == null) return NotFound();
-        return Ok(order);
-    }
+        public OrderController(IOrderService orderService)
+        {
+            _orderService = orderService;
+        }
 
-    [HttpPost("finalize/{userId}")]
-    public async Task<ActionResult<OrderDTO>> FinalizeOrder(string userId)
-    {
-        var order = await _orderService.FinalizeOrder(userId);
-        if (order == null) return BadRequest();
-        return Ok(order);
+        [HttpGet("{id}")]
+        public async Task<ActionResult<OrderDTO>> GetOrder(int id)
+        {
+            var order = await _orderService.GetOrderById(id);
+            if (order == null) return NotFound();
+            return Ok(order);
+        }
+
+        [HttpPost("finalize/{userId}")]
+        public async Task<ActionResult<OrderDTO>> FinalizeOrder(string userId)
+        {
+            var order = await _orderService.FinalizeOrder(userId);
+            if (order == null) return BadRequest();
+            return Ok(order);
+        }
     }
 }

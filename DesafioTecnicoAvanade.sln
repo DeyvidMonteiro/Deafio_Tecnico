@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DesafioTecnicoAvanade.Ident
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DesafioTecnicoAvanade.VendasApi", "DesafioTecnicoAvanade.VendasApi\DesafioTecnicoAvanade.VendasApi.csproj", "{85318576-98EB-4848-BF5A-DCA23A5BD796}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api-Gateway", "Api-Gateway\Api-Gateway.csproj", "{A934CA32-E2D8-4285-9A6B-D04C25BBA182}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{85318576-98EB-4848-BF5A-DCA23A5BD796}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85318576-98EB-4848-BF5A-DCA23A5BD796}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85318576-98EB-4848-BF5A-DCA23A5BD796}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A934CA32-E2D8-4285-9A6B-D04C25BBA182}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A934CA32-E2D8-4285-9A6B-D04C25BBA182}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A934CA32-E2D8-4285-9A6B-D04C25BBA182}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A934CA32-E2D8-4285-9A6B-D04C25BBA182}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
