@@ -8,11 +8,6 @@ O projeto segue a arquitetura de microserviços, onde o cliente interage apenas 
 
 API Gateway: http://localhost:5000
 
-Serviços Internos:
-Estoque API: http://localhost:5079
-Vendas API: http://localhost:5078
-Identity API: http://localhost:5067
-
 ---
 Tecnologias e Padrões Utilizados
 Frameworks: O projeto é construído em .NET e ASP.NET Core. A API Gateway utiliza o framework Ocelot e Entity Framework Core 
