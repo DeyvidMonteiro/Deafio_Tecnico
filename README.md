@@ -46,10 +46,7 @@ Iniciar os Microserviços
 Abra um terminal para cada microserviço:
 API Gateway, Estoque API, Vendas API, Identity API
 
-Configurar a API Gateway
-Na pasta do projeto da API Gateway, configure a porta 5000 no arquivo launchSettings.json:
-
-"applicationUrl": "http://localhost:5000"
+Configurar a API Gateway configure a porta 5000 no arquivo launchSettings.json: "applicationUrl": "http://localhost:5000"
 
 Rotas Disponíveis:
 
