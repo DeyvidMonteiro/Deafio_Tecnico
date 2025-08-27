@@ -2,6 +2,7 @@
 using DesafioTecnicoAvanade.VendasApi.DataAccess.Contracts;
 using DesafioTecnicoAvanade.VendasApi.DTOs;
 using DesafioTecnicoAvanade.VendasApi.DTOs.Request;
+using DesafioTecnicoAvanade.VendasApi.Filters.Exceptions;
 using DesafioTecnicoAvanade.VendasApi.Models;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
 using DesafioTecnicoAvanade.VendasApi.Services.External;
@@ -60,11 +61,14 @@ public class CartService : ICartService
         foreach (var item in requestCartDTO.CartItems)
         {
             if (item.Qauntity <= 0)
-                throw new ArgumentException("A quantidade do item deve ser maior que zero.");
+                throw new InvalidOrderException("A quantidade do item deve ser maior que zero.");
 
             var productDTO = await _productApiService.GetProductByIdAsync(item.ProductId);
             if (productDTO == null)
-                throw new ArgumentException($"Produto com ID {item.ProductId} não encontrado na API de Estoque.");
+                throw new ProductNotFoundException($"Produto com ID {item.ProductId} não encontrado na API de Estoque.");
+
+            if (productDTO.Stock < item.Qauntity)
+                throw new InsufficientStockException($"{item.ProductId} com estoque insuficiente");
 
             var existingItem = await _readRepository.GetCartItemAsync(item.ProductId, cartHeader.Id);
 

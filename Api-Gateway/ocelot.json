@@ -28,14 +28,14 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/api/identity/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "DownstreamPathTemplate": "/api/{everything}",
-      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/api/identity/connect/token",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/connect/token",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 5067
+          "Port": 7270
         }
       ]
     }

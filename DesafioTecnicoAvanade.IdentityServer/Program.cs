@@ -60,24 +60,28 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-var builderIdentityServer = builder.Services.AddIdentityServer(options =>
+
+builder.Services.AddIdentityServer(options =>
 {
     options.Events.RaiseErrorEvents = true;
     options.Events.RaiseInformationEvents = true;
     options.Events.RaiseFailureEvents = true;
     options.Events.RaiseSuccessEvents = true;
     options.EmitStaticAudienceClaim = true;
-}).AddInMemoryIdentityResources(
-                       IdentityConfiguration.IdentityResources)
-                       .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
-                       .AddInMemoryClients(IdentityConfiguration.Clients)
-                       .AddAspNetIdentity<ApplicationUser>();
+})
+    .AddInMemoryIdentityResources(IdentityConfiguration.IdentityResources)
+    .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
+    .AddInMemoryClients(IdentityConfiguration.Clients)
+    .AddAspNetIdentity<ApplicationUser>()
+    .AddDeveloperSigningCredential();
 
-builderIdentityServer.AddDeveloperSigningCredential();
+
+
 
 builder.Services.AddScoped<IProfileService, ProfileAppService>();
 builder.Services.AddScoped<IDatabaseSeedInitializer, DatabaseIdentityServerInitializer>();
@@ -109,13 +113,15 @@ else
     app.UseHsts();
 }
 
-
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
+
+app.UseRouting();
 
 app.UseCors("CorsPolicy");
 
-app.UseRouting();
+app.UseAuthentication();
 
 app.UseIdentityServer();
 

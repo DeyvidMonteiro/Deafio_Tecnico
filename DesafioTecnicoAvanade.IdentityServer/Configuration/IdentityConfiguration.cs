@@ -17,9 +17,12 @@ namespace DesafioTecnicoAvanade.IdentityServer.Configuration
 
         public static IEnumerable<ApiScope> ApiScopes => new List<ApiScope>
         {
-            // ... (escopos 'read', 'write', 'delete' mantidos)
+            new ApiScope("read", "Permite leitura"),
+            new ApiScope("write", "Permite escrita"),
+            new ApiScope("delete", "Permite deletar"),
             new ApiScope("possivelGateway", "Acesso ao possível gateway")
         };
+
 
         public static IEnumerable<Client> Clients => new List<Client>
             {
