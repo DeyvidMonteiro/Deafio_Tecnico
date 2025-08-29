@@ -3,11 +3,12 @@
     "BaseUrl": "http://localhost:5000"
   },
   "Routes": [
+    // Rota pública para pegar um produto por ID
     {
-      "UpstreamPathTemplate": "/api/estoque/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "DownstreamPathTemplate": "/api/{everything}",
-      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/api/estoque/products/{id}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/products/{id}",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
@@ -15,18 +16,60 @@
         }
       ]
     },
+    // Rota pública para listar todos os produtos
+    {
+      "UpstreamPathTemplate": "/api/estoque/products",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/products",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5079
+        }
+      ]
+    },
+    // Rota genérica para o estoque (protegida)
+    {
+      "UpstreamPathTemplate": "/api/estoque/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5079
+        }
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [ "api-access" ]
+      },
+      "AddHeadersToRequest": {
+        "Authorization": "Bearer {ocelot_token}"
+      }
+    },
+    // Rota para a API de Vendas (protegida)
     {
       "UpstreamPathTemplate": "/api/vendas/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/api/{everything}",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
           "Port": 5078
         }
-      ]
+      ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": [ "api-access" ]
+      },
+      "AddHeadersToRequest": {
+        "Authorization": "Bearer {ocelot_token}"
+      }
     },
+    // Rota para o token do IdentityServer (pública)
     {
       "UpstreamPathTemplate": "/api/identity/connect/token",
       "UpstreamHttpMethod": [ "POST" ],

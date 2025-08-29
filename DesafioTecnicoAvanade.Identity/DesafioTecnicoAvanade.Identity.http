@@ -1,0 +1,6 @@
+@DesafioTecnicoAvanade.Identity_HostAddress = http://localhost:5072
+
+GET {{DesafioTecnicoAvanade.Identity_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

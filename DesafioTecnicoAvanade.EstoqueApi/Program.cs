@@ -79,8 +79,9 @@ builder.Services.AddAuthentication("Bearer")
            options.Authority = builder.Configuration["IdentityServer:ApplicationUrl"]; 
            options.TokenValidationParameters = new TokenValidationParameters
            {
-               ValidateAudience = false
+               ValidateAudience = true
            };
+           options.Audience = "estoque"; ;
        });
 
 builder.Services.AddAuthorization(options =>

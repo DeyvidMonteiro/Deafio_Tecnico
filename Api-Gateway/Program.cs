@@ -11,7 +11,6 @@ builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
         options.Authority = "https://localhost:7270";
-        options.Audience = "possivelGateway";
     });
 
 builder.Services.AddCors(options =>
