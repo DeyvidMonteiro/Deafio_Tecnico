@@ -10,8 +10,8 @@ API Gateway: http://localhost:5000
 
 ---
 Tecnologias e Padrões Utilizados
-Frameworks: O projeto é construído em .NET e ASP.NET Core. A API Gateway utiliza o framework Ocelot e Entity Framework Core 
-para mapeamento objeto-relacional.
+Frameworks: O projeto é construído em .NET e ASP.NET Core. Entity Framework Core 
+para mapeamento objeto-relacional. A API Gateway utiliza o framework Ocelot.
 
 Arquitetura: A aplicação segue o padrão de Microserviços e utiliza API Gateway como ponto de entrada.
 
@@ -19,10 +19,10 @@ Os serviços internos (Vendas e Estoque) são baseados em CQRS (Command Query Re
 
 Comunicação e Mensageria: As comunicações assíncronas são gerenciadas por filas de mensageria com RabbitMQ.
 
-Autenticação e Autorização: A segurança e o gerenciamento de identidade são implementados com o Template Duende IdentityServer.
+Autenticação e Autorização: A segurança e o gerenciamento de identidade são implementados com o Identity.
 
 Banco de Dados e Persistência: A camada de dados utiliza SQL Server para o banco de dados. Para a organização do código,
-são aplicados os padrões Repository e Atomicidade.
+são aplicados os padrões Repository.
 
 ---
 
@@ -66,23 +66,7 @@ http://localhost:5000/api/vendas/order
 
 Identity API:
 
-POST http://localhost:5000/api/identity/register
+http://localhost:5000/api/identity/login
 
-POST http://localhost:5000/api/identity/connect/token 
-
-Postman(gerando token)
-
-Content-Type: application/x-www-form-urlencoded
-
-grant_type = password     (padrao)
-
-client_id = ro.client     (padrao)
-
-client_secret = secreto   (padrao)
-
-username = usuario que você criou    
-
-password = senha que você criou
-
-scope = openid profile email read write delete    (padrao)
+http://localhost:5000/api/identity/register
 
