@@ -74,15 +74,18 @@ builder.Services.AddHostedService<RabbitMQHostedService>();
 
 
 builder.Services.AddAuthentication("Bearer")
-       .AddJwtBearer("Bearer", options =>
-       {
-           options.Authority = builder.Configuration["IdentityServer:ApplicationUrl"]; 
-           options.TokenValidationParameters = new TokenValidationParameters
-           {
-               ValidateAudience = true
-           };
-           options.Audience = "estoque"; ;
-       });
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.Authority = builder.Configuration["Identity:ApplicationUrl"];
+        options.Audience = "estoque";
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            ValidateAudience = true,
+            ValidateIssuer = true
+        };
+    });
 
 builder.Services.AddAuthorization(options =>
     {

@@ -74,12 +74,15 @@ builder.Services.AddCors(options =>
 builder.Services.AddAuthentication("Bearer")
        .AddJwtBearer("Bearer", options =>
        {
-           options.Authority = builder.Configuration["IdentityServer:ApplicationUrl"];
+           options.Authority = builder.Configuration["Identity:ApplicationUrl"];
+           options.Audience = "vendas";
+
            options.TokenValidationParameters = new TokenValidationParameters
            {
-               ValidateAudience = true
+               ValidateIssuerSigningKey = true,
+               ValidateAudience = true,
+               ValidateIssuer = true
            };
-           options.Audience = "vendas";
        });
 
 builder.Services.AddAuthorization(options =>
