@@ -50,27 +50,7 @@ Configurar a API Gateway configure a porta 5000 no arquivo launchSettings.json: 
 
 Rotas Disponíveis:
 
-As requisições aos microserviços devem ser feitas através da API Gateway:
-
-Estoque API
-
-Público:
-
-GET http://localhost:5000/estoque/products
-
-Protegido (Bearer Token):
-
-GET http://localhost:5000/estoque/products/{id}
-
-PUT http://localhost:5000/estoque/{id}/decrement
-
-Protegido (Admin Token):
-
-POST http://localhost:5000/estoque/products
-
-PUT http://localhost:5000/estoque/products/{id}
-
-DELETE http://localhost:5000/estoque/products/{id}
+As requisições aos microserviços podem ser feitas através da API Gateway:
 
 ---
 
