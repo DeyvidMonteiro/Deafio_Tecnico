@@ -28,6 +28,7 @@
         }
       ]
     },
+    // Rotas protegidas do Identity
     {
       "UpstreamPathTemplate": "/identity/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
@@ -37,38 +38,6 @@
         {
           "Host": "localhost",
           "Port": 5072
-        }
-      ],
-      "AuthenticationOptions": {
-        "AuthenticationProviderKey": "Bearer",
-        "AllowedScopes": []
-      }
-    },
-
-    // Rotas públicas do Estoque
-    {
-      "UpstreamPathTemplate": "/estoque/products",
-      "UpstreamHttpMethod": [ "GET" ],
-      "DownstreamPathTemplate": "/products",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 5079
-        }
-      ]
-    },
-
-    // Rotas protegidas do Estoque
-    {
-      "UpstreamPathTemplate": "/estoque/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
-      "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 5079
         }
       ],
       "AuthenticationOptions": {
