@@ -3,42 +3,40 @@
     "BaseUrl": "http://localhost:5000"
   },
   "Routes": [
-    // Rota de Login e Registro (públicas)
+    // Rotas públicas do Identity
     {
       "UpstreamPathTemplate": "/identity/login",
       "UpstreamHttpMethod": [ "POST" ],
-      "DownstreamPathTemplate": "/login",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/auth/login",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7159
+          "Port": 5072
         }
       ]
     },
     {
       "UpstreamPathTemplate": "/identity/register",
       "UpstreamHttpMethod": [ "POST" ],
-      "DownstreamPathTemplate": "/register",
-      "DownstreamScheme": "https",
+      "DownstreamPathTemplate": "/auth/register",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7159
+          "Port": 5072
         }
       ]
     },
-
-    // Rota genérica para a API de Identidade (protegida)
     {
       "UpstreamPathTemplate": "/identity/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7159
+          "Port": 5072
         }
       ],
       "AuthenticationOptions": {
@@ -47,7 +45,7 @@
       }
     },
 
-    // Rota pública para listar todos os produtos
+    // Rotas públicas do Estoque
     {
       "UpstreamPathTemplate": "/estoque/products",
       "UpstreamHttpMethod": [ "GET" ],
@@ -56,11 +54,12 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7079
+          "Port": 5079
         }
       ]
     },
-    // Rota genérica para a API de Estoque (protegida)
+
+    // Rotas protegidas do Estoque
     {
       "UpstreamPathTemplate": "/estoque/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
@@ -69,7 +68,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7079
+          "Port": 5079
         }
       ],
       "AuthenticationOptions": {
@@ -78,7 +77,7 @@
       }
     },
 
-    // Rota genérica para a API de Vendas (protegida)
+    // Rotas protegidas do Vendas
     {
       "UpstreamPathTemplate": "/vendas/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
@@ -87,7 +86,7 @@
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 7078
+          "Port": 7103
         }
       ],
       "AuthenticationOptions": {
