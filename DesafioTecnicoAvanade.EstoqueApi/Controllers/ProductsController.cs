@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DesafioTecnicoAvanade.EstoqueApi.Controllers;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 
 public class ProductsController : ControllerBase
@@ -29,8 +29,9 @@ public class ProductsController : ControllerBase
         return Ok(products);
 
     }
-
+   
     [HttpGet("{id:int}", Name = "GetProducts")]
+    [Authorize]
     public async Task<ActionResult<CategoryDTO>> Get(int id)
     {
         var products = await _services.GetProductById(id);

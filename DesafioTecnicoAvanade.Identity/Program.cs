@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Net;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -90,6 +91,21 @@ builder.Services.AddAuthorization(options =>
 
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+    var userName = builder.Configuration["ApiCredentials:UserName"];
+    var password = builder.Configuration["ApiCredentials:Password"];
+
+    if (await userManager.FindByNameAsync(userName) == null)
+    {
+        var user = new ApplicationUser { UserName = userName, Email = builder.Configuration["ApiCredentials:Email"] };
+        await userManager.CreateAsync(user, password);
+    }
+}
+
 app.MapControllers();
 
 // Configure the HTTP request pipeline.

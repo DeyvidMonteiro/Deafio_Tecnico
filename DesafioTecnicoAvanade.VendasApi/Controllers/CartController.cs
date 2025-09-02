@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
 using DesafioTecnicoAvanade.VendasApi.DTOs;
 using DesafioTecnicoAvanade.VendasApi.DTOs.Request;
-using DesafioTecnicoAvanade.VendasApi.Services;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DesafioTecnicoAvanade.VendasApi.Controllers;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 [Authorize]
 public class CartController : ControllerBase

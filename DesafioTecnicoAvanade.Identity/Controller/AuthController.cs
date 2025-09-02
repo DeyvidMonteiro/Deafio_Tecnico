@@ -9,7 +9,7 @@ using System.Security.Claims;
 
 namespace DesafioTecnicoAvanade.Identity.Controller
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {

@@ -4,7 +4,7 @@ using DesafioTecnicoAvanade.VendasApi.DTOs;
 using DesafioTecnicoAvanade.VendasApi.Filters.Exceptions;
 using DesafioTecnicoAvanade.VendasApi.Models;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
-using DesafioTecnicoAvanade.VendasApi.Services.External;
+using DesafioTecnicoAvanade.VendasApi.Services.External.Contracts;
 
 namespace DesafioTecnicoAvanade.VendasApi.Services;
 
@@ -76,29 +76,5 @@ public class OrderService : IOrderService
             throw;
         }
     }
-
-    //private async Task ValidateAndUpdateStockAsync(CartItemDTO item)
-    //{
-    //    var product = await _productApiService.GetProductByIdAsync(item.ProductId);
-
-    //    if (product == null)
-    //        throw new ProductNotFoundException($"Produto com ID {item.ProductId} não encontrado na API de Estoque.");
-
-    //    await _productApiService.UpdateProductStockAsync(item.ProductId, item.Qauntity);
-    //}
-
-    //private async Task RevertStockChangesAsync(IEnumerable<CartItemDTO> cartItems)
-    //{
-    //    foreach (var item in cartItems)
-    //    {
-
-    //        var product = await _productApiService.GetProductByIdAsync(item.ProductId);
-    //        if (product != null)
-    //        {
-    //            long revertedStock = product.Stock + item.Qauntity;
-    //            await _productApiService.UpdateProductStockAsync(item.ProductId, revertedStock);
-    //        }
-    //    }
-    //}
 
 }

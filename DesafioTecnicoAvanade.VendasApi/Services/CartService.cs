@@ -5,7 +5,7 @@ using DesafioTecnicoAvanade.VendasApi.DTOs.Request;
 using DesafioTecnicoAvanade.VendasApi.Filters.Exceptions;
 using DesafioTecnicoAvanade.VendasApi.Models;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
-using DesafioTecnicoAvanade.VendasApi.Services.External;
+using DesafioTecnicoAvanade.VendasApi.Services.External.Contracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace DesafioTecnicoAvanade.VendasApi.Services;
@@ -48,7 +48,7 @@ public class CartService : ICartService
     public async Task<CartDTO> AddCart(string userId, RequestCartDTO requestCartDTO)
     {
         if (requestCartDTO == null)
-            throw new ArgumentException("Request não pode ser nulo.");
+            throw new InvalidOrderException("Request não pode ser nulo.");
 
         var cartHeader = await _readRepository.GetCartHeaderByUserIdAsync(userId);
 
@@ -65,7 +65,7 @@ public class CartService : ICartService
 
             var productDTO = await _productApiService.GetProductByIdAsync(item.ProductId);
             if (productDTO == null)
-                throw new ProductNotFoundException($"Produto com ID {item.ProductId} não encontrado na API de Estoque.");
+                throw new ProductNotFoundException($"Produto com ID {item.ProductId} não encontrado no Estoque.");
 
             if (productDTO.Stock < item.Qauntity)
                 throw new InsufficientStockException($"{item.ProductId} com estoque insuficiente");

@@ -6,9 +6,11 @@ using DesafioTecnicoAvanade.VendasApi.RabbitMQ;
 using DesafioTecnicoAvanade.VendasApi.Services;
 using DesafioTecnicoAvanade.VendasApi.Services.Contracts;
 using DesafioTecnicoAvanade.VendasApi.Services.External;
+using DesafioTecnicoAvanade.VendasApi.Services.External.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +63,7 @@ builder.Services.AddScoped<IOrderReadOnlyRepository, OrderRepository>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddSingleton<IMessageBus, RabbitMQMessageBus>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 
 builder.Services.AddCors(options =>
@@ -72,18 +75,21 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddAuthentication("Bearer")
-       .AddJwtBearer("Bearer", options =>
-       {
-           options.Authority = builder.Configuration["Identity:ApplicationUrl"];
-           options.Audience = "vendas";
-
-           options.TokenValidationParameters = new TokenValidationParameters
-           {
-               ValidateIssuerSigningKey = true,
-               ValidateAudience = true,
-               ValidateIssuer = true
-           };
-       });
+.AddJwtBearer("Bearer", options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero,
+        ValidAudience = builder.Configuration["JWT:ValidAudience"],
+        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"]))
+    };
+});
 
 builder.Services.AddAuthorization(options =>
 {
@@ -96,8 +102,14 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddHttpClient<IProductApiService, ProductApiService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5078");
+    client.BaseAddress = new Uri("https://localhost:5079");
 });
+
+builder.Services.AddHttpClient("IdentityApi", client =>
+{
+    client.BaseAddress = new Uri("http://localhost:5072");
+});
+
 
 builder.Services.AddMvc(opt => opt.Filters.Add(typeof(ExceptionFilter)));
 
