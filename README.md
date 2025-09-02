@@ -52,21 +52,21 @@ Rotas Disponíveis:
 
 As requisições aos microserviços devem ser feitas através da API Gateway:
 
-Estoque API:
+Estoque API
 
-http://localhost:5000/api/estoque/categories
+http://localhost:5000/estoque/categories
 
-http://localhost:5000/api/estoque/products
+http://localhost:5000/estoque/products
 
-Vendas API:
+Vendas API
 
-http://localhost:5000/api/vendas/cart
+http://localhost:5000/vendas/cart
 
-http://localhost:5000/api/vendas/order
+http://localhost:5000/vendas/order
 
-Identity API:
+Identity API
 
-http://localhost:5000/api/identity/login
+http://localhost:5000/identity/login
 
-http://localhost:5000/api/identity/register
+http://localhost:5000/identity/register
 
