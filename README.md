@@ -54,19 +54,55 @@ As requisições aos microserviços devem ser feitas através da API Gateway:
 
 Estoque API
 
-http://localhost:5000/estoque/categories
+Público:
 
-http://localhost:5000/estoque/products
+GET http://localhost:5000/estoque/products
 
-Vendas API
+Protegido (Bearer Token):
 
-http://localhost:5000/vendas/cart
+GET http://localhost:5000/estoque/products/{id}
 
-http://localhost:5000/vendas/order
+PUT http://localhost:5000/estoque/{id}/decrement
+
+Protegido (Admin Token):
+
+POST http://localhost:5000/estoque/products
+
+PUT http://localhost:5000/estoque/products/{id}
+
+DELETE http://localhost:5000/estoque/products/{id}
+
+---
+
+Vendas API (todas protegidas por Bearer Token)
+
+GET http://localhost:5000/vendas/cart/getcart/{userId}
+
+POST http://localhost:5000/vendas/cart/addcart/{userId}
+
+DELETE http://localhost:5000/vendas/cart/deletecartitem/{id}
+
+DELETE http://localhost:5000/vendas/cart/clearcart?userId={userId}
+
+GET http://localhost:5000/vendas/order/{id}
+
+POST http://localhost:5000/vendas/order/finalize/{userId}
+
+---
 
 Identity API
 
-http://localhost:5000/identity/login
+Público:
 
-http://localhost:5000/identity/register
+POST http://localhost:5000/identity/login
+
+POST http://localhost:5000/identity/register
+
+Protegido (Admin Token):
+
+POST http://localhost:5000/identity/createRole?roleName={roleName}
+
+POST http://localhost:5000/identity/AddUserToRole?email={email}&roleName={roleName}
+
+POST http://localhost:5000/identity/revoke/{username}
 
